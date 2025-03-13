@@ -51,25 +51,24 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
     let newSelection: string[];
 
     if (engineer === 'all') {
-      // Selecting "All" clears other selections
-      newSelection = ['all'];
-    } else if (selectedEngineers.includes('all')) {
-      // If "All" was selected, switch to just this engineer
-      newSelection = [engineer];
-    } else {
-      // Toggle the selected engineer
-      if (selectedEngineers.includes(engineer)) {
-        // Remove the engineer
-        newSelection = selectedEngineers.filter(e => e !== engineer);
-        // If empty, switch to "All"
-        if (newSelection.length === 0) {
-          newSelection = ['all'];
-        }
+      // Don't allow deselecting 'all' directly
+      if (!selectedEngineers.includes('all')) {
+        newSelection = ['all'];
       } else {
-        // Add the engineer
-        newSelection = [...selectedEngineers, engineer];
-        // If all engineers are selected, switch to "All"
-        if (newSelection.length === engineers.length) {
+        return; // Do nothing if trying to uncheck "All"
+      }
+    } else {
+      if (selectedEngineers.includes('all')) {
+        // If All was selected, switch to just this engineer
+        newSelection = [engineer];
+      } else {
+        // Toggle the selection
+        newSelection = selectedEngineers.includes(engineer)
+          ? selectedEngineers.filter(e => e !== engineer)
+          : [...selectedEngineers, engineer];
+        
+        // If all engineers are now selected or none are selected, switch to "All"
+        if (newSelection.length === engineers.length || newSelection.length === 0) {
           newSelection = ['all'];
         }
       }
@@ -102,10 +101,11 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
         onClick={() => setIsOpen(!isOpen)}
         className={`
           flex items-center justify-between
-          border border-gray-300 rounded-md
+          border rounded-md
           py-1 px-3 text-sm
           focus:outline-none focus:ring-2 focus:ring-gray-400
           ${isFilterActive ? 'bg-sky-50 text-sky-700' : 'bg-white text-gray-600'}
+          ${isOpen ? 'border-gray-400' : 'border-gray-300'}
         `}
       >
         <span>
@@ -167,7 +167,7 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
                   <input
                     type="checkbox"
                     className="rounded border-gray-300 mr-2"
-                    checked={selectedEngineers.includes(engineer)}
+                    checked={selectedEngineers.includes('all') || selectedEngineers.includes(engineer)}
                     onChange={() => handleSelect(engineer)}
                   />
                   <span className="text-sm text-gray-700">

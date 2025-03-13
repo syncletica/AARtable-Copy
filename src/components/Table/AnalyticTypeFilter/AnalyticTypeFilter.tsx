@@ -250,9 +250,9 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between border border-gray-300 rounded-md py-1 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 whitespace-nowrap ${
+        className={`flex items-center justify-between border rounded-md py-1 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 whitespace-nowrap ${
           !isAllSelected || (selection.types.length === 0 && selection.subtypes.length === 0) ? 'bg-sky-50 text-sky-700' : 'bg-white text-gray-600'
-        }`}
+        } ${isOpen ? 'border-gray-400' : 'border-gray-300'}`}
       >
         <span>Analytic type: {getDisplayText()}</span>
         <ChevronDown className="h-4 w-4 text-gray-400 ml-2" />
