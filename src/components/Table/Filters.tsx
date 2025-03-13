@@ -49,19 +49,14 @@ export const Filter: React.FC<FilterProps> = ({
         // When selecting None, clear other selections
         onChange(['none']);
       } else if (value === 'all') {
-        // Don't allow deselecting 'all' directly
-        if (!selectedOptions.includes('all')) {
-          onChange(['all']);
-        }
+        // When selecting All, clear all other selections
+        onChange(['all']);
       } else {
         // When selecting a specific option
         let newSelected: string[];
         
-        if (selectedOptions.includes('all')) {
-          // If All was selected, switch to just this option
-          newSelected = [value];
-        } else if (selectedOptions.includes('none')) {
-          // If None was selected, switch to just this option
+        if (selectedOptions.includes('all') || selectedOptions.includes('none')) {
+          // If All or None was selected, switch to just this option
           newSelected = [value];
         } else {
           // Toggle the selection
@@ -70,33 +65,32 @@ export const Filter: React.FC<FilterProps> = ({
             : [...selectedOptions, value];
         }
         
-        // Get all options except 'all' and 'none'
-        const individualOptions = options
-          .filter(opt => opt.value !== 'all' && opt.value !== 'none')
-          .map(opt => opt.value);
-        
-        // Check if all individual options are selected
-        const allIndividualSelected = individualOptions.every(opt => 
-          newSelected.includes(opt)
-        );
-
-        // If all individual options are selected, switch to 'all'
-        if (allIndividualSelected) {
-          onChange(['all']);
-        } else if (newSelected.length === 0) {
-          // If no options are selected, switch to 'none'
+        // If no options are selected, switch to 'none'
+        if (newSelected.length === 0) {
           onChange(['none']);
         } else {
-          onChange(newSelected);
+          // Check if all non-all/non-none options are selected
+          const allIndividualOptions = options
+            .filter(opt => opt.value !== 'all' && opt.value !== 'none')
+            .map(opt => opt.value);
+          
+          const allIndividualSelected = allIndividualOptions.every(opt => 
+            newSelected.includes(opt)
+          );
+
+          // If all individual options are selected, switch to 'all'
+          if (allIndividualSelected) {
+            onChange(['all']);
+          } else {
+            onChange(newSelected);
+          }
         }
       }
     } else {
       // Handle other filters
       if (value === 'all') {
-        // Don't allow deselecting 'all' directly
-        if (!selectedOptions.includes('all')) {
-          onChange(['all']);
-        }
+        // When selecting All, clear all other selections
+        onChange(['all']);
       } else {
         let newSelected: string[];
         
@@ -107,24 +101,28 @@ export const Filter: React.FC<FilterProps> = ({
           // Toggle the selection
           newSelected = selectedOptions.includes(value)
             ? selectedOptions.filter(v => v !== value)
-            : [...selectedOptions.filter(v => v !== 'all'), value];
+            : [...selectedOptions, value];
         }
 
-        // Get all options except 'all'
-        const individualOptions = options
-          .filter(opt => opt.value !== 'all')
-          .map(opt => opt.value);
-        
-        // Check if all individual options are selected
-        const allIndividualSelected = individualOptions.every(opt => 
-          newSelected.includes(opt)
-        );
-
-        // If all individual options are selected or no options are selected, switch to 'all'
-        if (allIndividualSelected || newSelected.length === 0) {
+        // If no options are selected, switch to 'all'
+        if (newSelected.length === 0) {
           onChange(['all']);
         } else {
-          onChange(newSelected);
+          // Check if all non-all options are selected
+          const allIndividualOptions = options
+            .filter(opt => opt.value !== 'all')
+            .map(opt => opt.value);
+          
+          const allIndividualSelected = allIndividualOptions.every(opt => 
+            newSelected.includes(opt)
+          );
+
+          // If all individual options are selected, switch to 'all'
+          if (allIndividualSelected) {
+            onChange(['all']);
+          } else {
+            onChange(newSelected);
+          }
         }
       }
     }
@@ -155,15 +153,23 @@ export const Filter: React.FC<FilterProps> = ({
       {isOpen && (
         <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ width: '260px', right: '0' }}>
           <div className="py-1">
-            {options.map((option) => (
+            {options.map((option, index) => (
               <label
                 key={option.value}
-                className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer whitespace-nowrap"
+                className={`flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${
+                  (isRequestTypeFilter && option.value === 'none') || (!isRequestTypeFilter && option.value === 'all') ? 'border-b border-gray-200' : ''
+                }`}
               >
                 <input
                   type="checkbox"
                   className="rounded border-gray-300 mr-2"
-                  checked={option.value === 'none' ? selectedOptions.includes('none') : (selectedOptions.includes('all') || selectedOptions.includes(option.value))}
+                  checked={
+                    option.value === 'all' 
+                      ? selectedOptions.includes('all')
+                      : option.value === 'none'
+                        ? selectedOptions.includes('none')
+                        : selectedOptions.includes(option.value)
+                  }
                   onChange={() => handleOptionToggle(option.value)}
                 />
                 <span className="text-sm text-gray-700">{option.label}</span>

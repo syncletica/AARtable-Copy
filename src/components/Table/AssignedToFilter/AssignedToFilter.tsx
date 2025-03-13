@@ -51,12 +51,8 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
     let newSelection: string[];
 
     if (engineer === 'all') {
-      // Don't allow deselecting 'all' directly
-      if (!selectedEngineers.includes('all')) {
-        newSelection = ['all'];
-      } else {
-        return; // Do nothing if trying to uncheck "All"
-      }
+      // When selecting All, clear all other selections
+      newSelection = ['all'];
     } else {
       if (selectedEngineers.includes('all')) {
         // If All was selected, switch to just this engineer
@@ -67,8 +63,8 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
           ? selectedEngineers.filter(e => e !== engineer)
           : [...selectedEngineers, engineer];
         
-        // If all engineers are now selected or none are selected, switch to "All"
-        if (newSelection.length === engineers.length || newSelection.length === 0) {
+        // If no engineers are selected, switch to "All"
+        if (newSelection.length === 0) {
           newSelection = ['all'];
         }
       }
@@ -122,13 +118,13 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
           className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg"
           style={{ width: '400px', right: '0' }}
         >
-          <div className="p-2 border-b border-gray-200">
+          <div className="p-2">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 className="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                placeholder="Search engineers..."
+                placeholder=""
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -157,9 +153,23 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
             )}
           </div>
 
+          <label
+            className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
+          >
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 mr-2"
+              checked={selectedEngineers.includes('all')}
+              onChange={() => handleSelect('all')}
+            />
+            <span className="text-sm text-gray-700">All</span>
+          </label>
+
           <div className="overflow-y-auto" style={{ maxHeight: '300px' }}>
             <div className="py-1">
-              {filteredEngineers.map((engineer) => (
+              {filteredEngineers
+                .filter(engineer => engineer !== 'all')
+                .map((engineer) => (
                 <label
                   key={engineer}
                   className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
@@ -167,12 +177,10 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
                   <input
                     type="checkbox"
                     className="rounded border-gray-300 mr-2"
-                    checked={selectedEngineers.includes('all') || selectedEngineers.includes(engineer)}
+                    checked={selectedEngineers.includes(engineer)}
                     onChange={() => handleSelect(engineer)}
                   />
-                  <span className="text-sm text-gray-700">
-                    {engineer === 'all' ? 'All' : engineer}
-                  </span>
+                  <span className="text-sm text-gray-700">{engineer}</span>
                 </label>
               ))}
             </div>

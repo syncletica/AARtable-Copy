@@ -40,6 +40,23 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleSelectAll = () => {
+    // When selecting All, clear all other selections
+    const newSelection = { 
+      types: initialTypes, 
+      subtypes: initialSubtypes 
+    };
+    setSelection(newSelection);
+    onChange(newSelection);
+  };
+
+  const handleSelectNone = () => {
+    // When selecting None, clear all other selections
+    const newSelection = { types: [], subtypes: [] };
+    setSelection(newSelection);
+    onChange(newSelection);
+  };
+
   const handleTypeSelect = (type: AnalyticType) => {
     const allSubtypeValues = type.subtypes?.map(st => st.value) || [];
     const allTypes = analyticTypes.map(t => t.value);
@@ -55,26 +72,38 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
         types: [type.value],
         subtypes: allSubtypeValues
       };
-    } else if (selection.types.includes(type.value)) {
-      // Remove this type and its subtypes
-      newSelection = {
-        types: selection.types.filter(t => t !== type.value),
-        subtypes: selection.subtypes.filter(st => !allSubtypeValues.includes(st))
-      };
-      // If nothing is selected after removal, switch to All
-      if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-        newSelection = { types: initialTypes, subtypes: initialSubtypes };
-      }
     } else {
-      // Add this type and its subtypes
-      newSelection = {
-        types: [...selection.types, type.value],
-        subtypes: [...selection.subtypes, ...allSubtypeValues]
-      };
-      // If all types are now selected, switch to all
-      if (newSelection.types.length === allTypes.length && 
-          allSubtypes.every(st => newSelection.subtypes.includes(st))) {
-        newSelection = { types: allTypes, subtypes: allSubtypes };
+      // Toggle the selection
+      if (selection.types.includes(type.value)) {
+        // Remove this type and its subtypes
+        newSelection = {
+          types: selection.types.filter(t => t !== type.value),
+          subtypes: selection.subtypes.filter(st => !allSubtypeValues.includes(st))
+        };
+      } else {
+        // Add this type and its subtypes
+        newSelection = {
+          types: [...selection.types, type.value],
+          subtypes: [...selection.subtypes, ...allSubtypeValues]
+        };
+
+        // Check if all individual options are now selected
+        const allTypesSelected = allTypes.every(t => 
+          newSelection.types.includes(t)
+        );
+        const allSubtypesSelected = allSubtypes.every(st => 
+          newSelection.subtypes.includes(st)
+        );
+
+        // If all options are selected, switch to "All"
+        if (allTypesSelected && allSubtypesSelected) {
+          return handleSelectAll();
+        }
+      }
+
+      // If nothing is selected, switch to None
+      if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
+        newSelection = { types: [], subtypes: [] };
       }
     }
     
@@ -97,41 +126,37 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
         subtypes: [subtype.value]
       };
     } else {
-      const parentType = analyticTypes.find(t => t.value === subtype.parentType);
-      const allSubtypesOfType = parentType?.subtypes?.map(st => st.value) || [];
-      
+      // Toggle the selection
       if (selection.subtypes.includes(subtype.value)) {
         // Remove this subtype
-        const newSubtypes = selection.subtypes.filter(st => st !== subtype.value);
         newSelection = {
           types: selection.types.filter(t => t !== subtype.parentType),
-          subtypes: newSubtypes
+          subtypes: selection.subtypes.filter(st => st !== subtype.value)
         };
-        // If nothing is selected after removal, switch to All
-        if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-          newSelection = { types: initialTypes, subtypes: initialSubtypes };
-        }
       } else {
         // Add this subtype
-        const newSubtypes = [...selection.subtypes, subtype.value];
-        
-        // Only add the parent type if ALL subtypes are selected
-        if (allSubtypesOfType.every(st => newSubtypes.includes(st))) {
-          newSelection = {
-            types: [...selection.types, subtype.parentType],
-            subtypes: newSubtypes
-          };
-          // If all types are now selected, switch to all
-          if (newSelection.types.length === allTypes.length && 
-              allSubtypes.every(st => newSelection.subtypes.includes(st))) {
-            newSelection = { types: allTypes, subtypes: allSubtypes };
-          }
-        } else {
-          newSelection = {
-            types: selection.types.filter(t => t !== subtype.parentType),
-            subtypes: newSubtypes
-          };
+        newSelection = {
+          types: selection.types,
+          subtypes: [...selection.subtypes, subtype.value]
+        };
+
+        // Check if all individual options are now selected
+        const allTypesSelected = allTypes.every(t => 
+          newSelection.types.includes(t)
+        );
+        const allSubtypesSelected = allSubtypes.every(st => 
+          newSelection.subtypes.includes(st)
+        );
+
+        // If all options are selected, switch to "All"
+        if (allTypesSelected && allSubtypesSelected) {
+          return handleSelectAll();
         }
+      }
+
+      // If nothing is selected, switch to None
+      if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
+        newSelection = { types: [], subtypes: [] };
       }
     }
     
@@ -139,19 +164,65 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     onChange(newSelection);
   };
 
-  const handleSelectAll = () => {
-    const newSelection = { 
-      types: initialTypes, 
-      subtypes: initialSubtypes 
-    };
-    setSelection(newSelection);
-    onChange(newSelection);
+  // Update chip removal to match the new pattern
+  const handleChipRemove = (chip: { value: string; isType: boolean }) => {
+    if (chip.isType) {
+      const type = analyticTypes.find(t => t.value === chip.value);
+      if (type) {
+        handleTypeSelect(type);
+      }
+    } else {
+      const subtype = analyticTypes
+        .flatMap(t => t.subtypes || [])
+        .find(s => s.value === chip.value);
+      if (subtype) {
+        handleSubtypeSelect(subtype);
+      }
+    }
   };
 
-  const handleSelectNone = () => {
-    const newSelection = { types: [], subtypes: [] };
-    setSelection(newSelection);
-    onChange(newSelection);
+  // Update getSelectedChips to include isType flag
+  const getSelectedChips = () => {
+    const chips: { label: string; value: string; count?: number; isType: boolean }[] = [];
+    
+    const allTypes = analyticTypes.map(t => t.value);
+    const allSubtypes = analyticTypes.flatMap(t => t.subtypes?.map(st => st.value) || []);
+    const isAllSelected = allTypes.every(t => selection.types.includes(t)) && 
+                         allSubtypes.every(st => selection.subtypes.includes(st));
+    
+    if (isAllSelected || (selection.types.length === 0 && selection.subtypes.length === 0)) {
+      return [];
+    }
+    
+    // Add chips for fully selected types
+    selection.types.forEach(typeValue => {
+      const type = analyticTypes.find(t => t.value === typeValue);
+      if (type) {
+        chips.push({ 
+          label: type.label, 
+          value: type.value, 
+          count: type.subtypes?.length || 0,
+          isType: true
+        });
+      }
+    });
+    
+    // Add chips for individual subtypes
+    selection.subtypes.forEach(st => {
+      const subtype = analyticTypes
+        .flatMap(t => t.subtypes || [])
+        .find(s => s.value === st);
+      
+      if (subtype && !selection.types.includes(subtype.parentType)) {
+        chips.push({ 
+          label: subtype.label, 
+          value: subtype.value,
+          isType: false
+        });
+      }
+    });
+    
+    return chips;
   };
 
   const getDisplayText = () => {
@@ -174,50 +245,6 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
       !selection.types.includes(analyticTypes.flatMap(t => t.subtypes || []).find(s => s.value === st)?.parentType || '')
     ).length;
     return `(${totalSelected + individualSubtypes})`;
-  };
-
-  const getSelectedChips = () => {
-    const chips: { label: string; value: string; count?: number }[] = [];
-    
-    // Add "All" chip if everything is selected
-    const allTypes = analyticTypes.map(t => t.value);
-    const allSubtypes = analyticTypes.flatMap(t => t.subtypes?.map(st => st.value) || []);
-    const isAllSelected = allTypes.every(t => selection.types.includes(t)) && 
-                         allSubtypes.every(st => selection.subtypes.includes(st));
-    
-    if (isAllSelected) {
-      return [];
-    }
-
-    // If nothing is selected, return empty array (no chip)
-    if (selection.types.length === 0 && selection.subtypes.length === 0) {
-      return [];
-    }
-    
-    // Add chips for fully selected types
-    selection.types.forEach(typeValue => {
-      const type = analyticTypes.find(t => t.value === typeValue);
-      if (type) {
-        chips.push({ 
-          label: type.label, 
-          value: type.value, 
-          count: type.subtypes?.length || 0 
-        });
-      }
-    });
-    
-    // Add chips for individual subtypes (that aren't part of a fully selected type)
-    selection.subtypes.forEach(st => {
-      const subtype = analyticTypes
-        .flatMap(t => t.subtypes || [])
-        .find(s => s.value === st);
-      
-      if (subtype && !selection.types.includes(subtype.parentType)) {
-        chips.push({ label: subtype.label, value: subtype.value });
-      }
-    });
-    
-    return chips;
   };
 
   const getFilteredTypes = () => {
@@ -260,13 +287,13 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
 
       {isOpen && (
         <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ width: '400px', right: '0' }}>
-          <div className="p-2 border-b border-gray-200">
+          <div className="p-2 ">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 className="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                placeholder="Search types and subtypes..."
+                placeholder="Search analytic types..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -279,75 +306,47 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
                     className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm"
                   >
                     {chip.label} {chip.count ? `(${chip.count})` : ''}
-                    {chip.value !== 'all' && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (chip.value === 'none') {
-                            // Do nothing when clicking X on none
-                          } else if (selection.types.includes(chip.value)) {
-                            const type = analyticTypes.find(t => t.value === chip.value);
-                            if (type) {
-                              const subtypesToRemove = type.subtypes?.map(st => st.value) || [];
-                              const newSelection = {
-                                types: selection.types.filter(t => t !== chip.value),
-                                subtypes: selection.subtypes.filter(st => !subtypesToRemove.includes(st))
-                              };
-                              if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-                                handleSelectAll();
-                              } else {
-                                setSelection(newSelection);
-                                onChange(newSelection);
-                              }
-                            }
-                          } else {
-                            const newSelection = {
-                              types: selection.types,
-                              subtypes: selection.subtypes.filter(st => st !== chip.value)
-                            };
-                            if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-                              handleSelectAll();
-                            } else {
-                              setSelection(newSelection);
-                              onChange(newSelection);
-                            }
-                          }
-                        }}
-                        className="ml-2 text-gray-500 hover:text-gray-700"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChipRemove(chip);
+                      }}
+                      className="ml-2 text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </span>
                 ))}
               </div>
             )}
           </div>
+
+          <div 
+            className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
+            onClick={handleSelectAll}
+          >
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 mr-2"
+              checked={isAllSelected}
+              readOnly
+            />
+            <span className="text-sm text-gray-700">All</span>
+          </div>
+          <div 
+            className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-200"
+            onClick={handleSelectNone}
+          >
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 mr-2"
+              checked={selection.types.length === 0 && selection.subtypes.length === 0}
+              readOnly
+            />
+            <span className="text-sm text-gray-700">None</span>
+          </div>
+
           <div className="max-h-[300px] overflow-y-auto">
-            <div 
-              className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-              onClick={handleSelectAll}
-            >
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 mr-2"
-                checked={selection.types.length === analyticTypes.length}
-                readOnly
-              />
-              <span className="text-sm text-gray-700">All</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer"
-              onClick={handleSelectNone}
-            >
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 mr-2"
-                checked={selection.types.length === 0 && selection.subtypes.length === 0}
-                readOnly
-              />
-              <span className="text-sm text-gray-700">None</span>
-            </div>
             {filteredTypes.map((type) => (
               <div key={type.value}>
                 <div 
@@ -357,7 +356,7 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
                   <input
                     type="checkbox"
                     className="rounded border-gray-300 mr-2"
-                    checked={selection.types.includes(type.value)}
+                    checked={!isAllSelected && selection.types.includes(type.value)}
                     readOnly
                   />
                   <span className="text-sm text-gray-700">{type.label}</span>
@@ -371,7 +370,7 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
                     <input
                       type="checkbox"
                       className="rounded border-gray-300 mr-2"
-                      checked={selection.subtypes.includes(subtype.value)}
+                      checked={!isAllSelected && selection.subtypes.includes(subtype.value)}
                       readOnly
                     />
                     <span className="text-sm text-gray-700">{subtype.label}</span>

@@ -61,7 +61,7 @@ const TableRow: React.FC<TableRowProps> = ({
       <td className="py-4 text-sm truncate pr-4">{role}</td>
       <td className="py-4 text-sm truncate pr-4">{assignedTo || 'Unassigned'}</td>
       <td className="py-4 text-sm truncate pr-4">{arrivalDate}</td>
-      <td className="py-4 text-sm truncate pr-4">{endDate}</td>
+      <td className="py-4 text-sm truncate pr-4">{isOperationalRequest(type) ? '' : endDate}</td>
     </tr>
   );
 };
