@@ -73,9 +73,11 @@ export const filterTableData = (
     }
 
     // Apply assigned to filter
-    if (!assignedToSelected.includes('all') && 
-        !assignedToSelected.includes(row.assignedTo?.toLowerCase().replace(/\s+/g, '') || '')) {
-      return false;
+    if (!assignedToSelected.includes('all')) {
+      const assignedValue = row.assignedTo?.toLowerCase().replace(/\s+/g, '') || 'unassigned';
+      if (!assignedToSelected.includes(assignedValue)) {
+        return false;
+      }
     }
 
     return true;

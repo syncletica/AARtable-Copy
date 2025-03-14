@@ -74,8 +74,7 @@ const Table: React.FC = () => {
               <th className="py-4 w-[260px] bg-white">Type</th>
               <th className="py-4 bg-white">Description</th>
               <th className="py-4 w-[130px] bg-white">Source</th>
-              <th className="py-4 w-[180px] bg-white">Role</th>
-              <th className="py-4 w-[180px] bg-white">Assigned to</th>
+              <th className="py-4 w-[220px] bg-white">Assigned to & Role</th>
               <th className="py-4 w-[110px] bg-white">Arrival date</th>
               <th className="py-4 w-[110px] bg-white">End date</th>
             </tr>

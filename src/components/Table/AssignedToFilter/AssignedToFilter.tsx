@@ -16,12 +16,15 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
 
   // Transform display name to filter value
   const toFilterValue = (name: string): string => {
-    return name === 'all' ? 'all' : name.toLowerCase().replace(/\s+/g, '');
+    if (name === 'all') return 'all';
+    if (name === 'Unassigned') return 'unassigned';
+    return name.toLowerCase().replace(/\s+/g, '');
   };
 
   // Transform filter value back to display name
   const toDisplayValue = (filterValue: string): string => {
     if (filterValue === 'all') return 'all';
+    if (filterValue === 'unassigned') return 'Unassigned';
     return engineers.find(eng => toFilterValue(eng) === filterValue) || filterValue;
   };
 

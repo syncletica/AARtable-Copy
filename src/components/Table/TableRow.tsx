@@ -58,8 +58,12 @@ const TableRow: React.FC<TableRowProps> = ({
         <p className="text-gray-800 truncate text-sm">{description}</p>
       </td>
       <td className="py-4 text-sm truncate pr-4">{source}</td>
-      <td className="py-4 text-sm truncate pr-4">{role}</td>
-      <td className="py-4 text-sm truncate pr-4">{assignedTo || 'Unassigned'}</td>
+      <td className="py-4 pr-4">
+        <div>
+          <div className="text-sm truncate">{assignedTo || 'Unassigned'}</div>
+          <div className="text-xs text-gray-500 truncate">{role}</div>
+        </div>
+      </td>
       <td className="py-4 text-sm truncate pr-4">{arrivalDate}</td>
       <td className="py-4 text-sm truncate pr-4">{isOperationalRequest(type) ? '' : endDate}</td>
     </tr>
