@@ -8,10 +8,14 @@ interface AnalyticTypeFilterProps {
   selection?: Selection;
 }
 
-const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selection: externalSelection }) => {
+export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selection: externalSelection }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(['all']);
+  const [selectedSubtypes, setSelectedSubtypes] = useState<string[]>([]);
   
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   // Initialize with "All" selected
   const initialTypes = analyticTypes.map(t => t.value);
   const initialSubtypes = analyticTypes.flatMap(t => t.subtypes?.map(st => st.value) || []);
@@ -20,14 +24,19 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     subtypes: initialSubtypes
   });
 
+  // Check if filter is active (has non-default selection)
+  const allTypes = analyticTypes.map(t => t.value);
+  const allSubtypes = analyticTypes.flatMap(t => t.subtypes?.map(st => st.value) || []);
+  const isAllSelected = allTypes.every(t => selection.types.includes(t)) && 
+                       allSubtypes.every(st => selection.subtypes.includes(st));
+  const isFilterActive = !isAllSelected || (selection.types.length === 0 && selection.subtypes.length === 0);
+
   // Update internal state when external selection changes
   useEffect(() => {
     if (externalSelection) {
       setSelection(externalSelection);
     }
   }, [externalSelection]);
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,7 +137,7 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     } else {
       // Toggle the selection
       if (selection.subtypes.includes(subtype.value)) {
-        // Remove this subtype
+        // Remove this subtype and its parent type if it was selected
         newSelection = {
           types: selection.types.filter(t => t !== subtype.parentType),
           subtypes: selection.subtypes.filter(st => st !== subtype.value)
@@ -139,6 +148,23 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
           types: selection.types,
           subtypes: [...selection.subtypes, subtype.value]
         };
+
+        // Check if all subtypes of the parent type are now selected
+        const parentType = analyticTypes.find(t => t.value === subtype.parentType);
+        if (parentType) {
+          const allSubtypesOfParent = parentType.subtypes?.map(st => st.value) || [];
+          const allSubtypesSelected = allSubtypesOfParent.every(st => 
+            newSelection.subtypes.includes(st)
+          );
+
+          // If all subtypes are selected, add the parent type to the selection
+          if (allSubtypesSelected && !newSelection.types.includes(subtype.parentType)) {
+            newSelection = {
+              types: [...newSelection.types, subtype.parentType],
+              subtypes: newSelection.subtypes
+            };
+          }
+        }
 
         // Check if all individual options are now selected
         const allTypesSelected = allTypes.every(t => 
@@ -181,7 +207,7 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
     }
   };
 
-  // Update getSelectedChips to include isType flag
+  // Update getSelectedChips to show type chips when all subtypes are selected
   const getSelectedChips = () => {
     const chips: { label: string; value: string; count?: number; isType: boolean }[] = [];
     
@@ -207,13 +233,33 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
       }
     });
     
-    // Add chips for individual subtypes
+    // Add chips for individual subtypes only if their parent type is not selected
     selection.subtypes.forEach(st => {
       const subtype = analyticTypes
         .flatMap(t => t.subtypes || [])
         .find(s => s.value === st);
       
       if (subtype && !selection.types.includes(subtype.parentType)) {
+        // Check if all subtypes of the parent type are selected
+        const parentType = analyticTypes.find(t => t.value === subtype.parentType);
+        if (parentType) {
+          const allSubtypesOfParent = parentType.subtypes?.map(s => s.value) || [];
+          const allSubtypesSelected = allSubtypesOfParent.every(s => 
+            selection.subtypes.includes(s)
+          );
+
+          // If all subtypes are selected, add the parent type chip instead
+          if (allSubtypesSelected && !chips.some(c => c.value === subtype.parentType)) {
+            chips.push({ 
+              label: parentType.label, 
+              value: parentType.value, 
+              count: allSubtypesOfParent.length,
+              isType: true
+            });
+            return; // Skip adding the individual subtype chip
+          }
+        }
+
         chips.push({ 
           label: subtype.label, 
           value: subtype.value,
@@ -267,19 +313,22 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
 
   const filteredTypes = getFilteredTypes();
   
-  // Check if all types and subtypes are selected
-  const allTypes = analyticTypes.map(t => t.value);
-  const allSubtypes = analyticTypes.flatMap(t => t.subtypes?.map(st => st.value) || []);
-  const isAllSelected = allTypes.every(t => selection.types.includes(t)) && 
-                       allSubtypes.every(st => selection.subtypes.includes(st));
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between border rounded-md py-1 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 whitespace-nowrap ${
-          !isAllSelected || (selection.types.length === 0 && selection.subtypes.length === 0) ? 'bg-sky-50 text-sky-700' : 'bg-white text-gray-600'
-        } ${isOpen ? 'border-gray-400' : 'border-gray-300'}`}
+        className={`
+          flex items-center justify-between
+          rounded-md py-1 px-3 text-sm
+          focus:outline-none focus:ring-2 focus:ring-sky-400
+          whitespace-nowrap
+          transition-colors duration-150
+          ${isFilterActive 
+            ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:border-sky-500' 
+            : 'bg-white text-gray-600 border border-gray-300 hover:border-gray-500'
+          }
+          ${isOpen ? 'border-sky-600' : ''}
+        `}
       >
         <span>Analytic type: {getDisplayText()}</span>
         <ChevronDown className="h-4 w-4 text-gray-400 ml-2" />
@@ -293,7 +342,7 @@ const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange, selec
               <input
                 type="text"
                 className="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                placeholder="Search analytic types..."
+                placeholder=""
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />

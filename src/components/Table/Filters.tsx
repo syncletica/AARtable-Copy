@@ -1,186 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React from 'react';
 import AnalyticTypeFilter from './AnalyticTypeFilter/AnalyticTypeFilter';
 import AssignedToFilter from './AssignedToFilter/AssignedToFilter';
+import { Filter } from './Filter/Filter';
 import { Selection } from './AnalyticTypeFilter/types';
 import { analyticTypes } from './AnalyticTypeFilter/data';
-
-export interface FilterOption {
-  label: string;
-  value: string;
-}
-
-export interface FilterProps {
-  label: string;
-  options: FilterOption[];
-  selectedOptions: string[];
-  onChange: (value: string[]) => void;
-  isRequestTypeFilter?: boolean;
-}
-
-export const Filter: React.FC<FilterProps> = ({ 
-  label, 
-  options, 
-  selectedOptions, 
-  onChange,
-  isRequestTypeFilter = false 
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Check if filter is active (has non-default selection)
-  const isFilterActive = !selectedOptions.includes('all') || selectedOptions.length > 1;
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleOptionToggle = (value: string) => {
-    if (isRequestTypeFilter) {
-      // Handle request type filter special cases
-      if (value === 'none') {
-        // When selecting None, clear other selections
-        onChange(['none']);
-      } else if (value === 'all') {
-        // When selecting All, clear all other selections
-        onChange(['all']);
-      } else {
-        // When selecting a specific option
-        let newSelected: string[];
-        
-        if (selectedOptions.includes('all') || selectedOptions.includes('none')) {
-          // If All or None was selected, switch to just this option
-          newSelected = [value];
-        } else {
-          // Toggle the selection
-          newSelected = selectedOptions.includes(value)
-            ? selectedOptions.filter(v => v !== value)
-            : [...selectedOptions, value];
-        }
-        
-        // If no options are selected, switch to 'none'
-        if (newSelected.length === 0) {
-          onChange(['none']);
-        } else {
-          // Check if all non-all/non-none options are selected
-          const allIndividualOptions = options
-            .filter(opt => opt.value !== 'all' && opt.value !== 'none')
-            .map(opt => opt.value);
-          
-          const allIndividualSelected = allIndividualOptions.every(opt => 
-            newSelected.includes(opt)
-          );
-
-          // If all individual options are selected, switch to 'all'
-          if (allIndividualSelected) {
-            onChange(['all']);
-          } else {
-            onChange(newSelected);
-          }
-        }
-      }
-    } else {
-      // Handle other filters
-      if (value === 'all') {
-        // When selecting All, clear all other selections
-        onChange(['all']);
-      } else {
-        let newSelected: string[];
-        
-        if (selectedOptions.includes('all')) {
-          // If All was selected, switch to just this option
-          newSelected = [value];
-        } else {
-          // Toggle the selection
-          newSelected = selectedOptions.includes(value)
-            ? selectedOptions.filter(v => v !== value)
-            : [...selectedOptions, value];
-        }
-
-        // If no options are selected, switch to 'all'
-        if (newSelected.length === 0) {
-          onChange(['all']);
-        } else {
-          // Check if all non-all options are selected
-          const allIndividualOptions = options
-            .filter(opt => opt.value !== 'all')
-            .map(opt => opt.value);
-          
-          const allIndividualSelected = allIndividualOptions.every(opt => 
-            newSelected.includes(opt)
-          );
-
-          // If all individual options are selected, switch to 'all'
-          if (allIndividualSelected) {
-            onChange(['all']);
-          } else {
-            onChange(newSelected);
-          }
-        }
-      }
-    }
-  };
-
-  const getDisplayText = () => {
-    if (selectedOptions.includes('all')) {
-      return `${label}: All`;
-    }
-    if (selectedOptions.includes('none')) {
-      return `${label}: None`;
-    }
-    return `${label}: (${selectedOptions.length})`;
-  };
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-between border rounded-md py-1 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 whitespace-nowrap ${
-          !selectedOptions.includes('all') || selectedOptions.includes('none') ? 'bg-sky-50 text-sky-700' : 'bg-white text-gray-600'
-        } ${isOpen ? 'border-gray-400' : 'border-gray-300'}`}
-      >
-        <span>{getDisplayText()}</span>
-        <ChevronDown className="h-4 w-4 text-gray-400 ml-2" />
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ width: '260px', right: '0' }}>
-          <div className="py-1">
-            {options.map((option, index) => (
-              <label
-                key={option.value}
-                className={`flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer whitespace-nowrap ${
-                  (isRequestTypeFilter && option.value === 'none') || (!isRequestTypeFilter && option.value === 'all') ? 'border-b border-gray-200' : ''
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className="rounded border-gray-300 mr-2"
-                  checked={
-                    option.value === 'all' 
-                      ? selectedOptions.includes('all')
-                      : option.value === 'none'
-                        ? selectedOptions.includes('none')
-                        : selectedOptions.includes(option.value)
-                  }
-                  onChange={() => handleOptionToggle(option.value)}
-                />
-                <span className="text-sm text-gray-700">{option.label}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+import { requestTypeOptions, sourceOptions, roleOptions } from './Filter/filterOptions';
 
 interface FiltersProps {
   onClearFilters: () => void;
@@ -242,51 +66,30 @@ const Filters: React.FC<FiltersProps> = ({
     <div className="flex items-center gap-4">
       <Filter
         label="Request type"
-        options={[
-          { label: 'All', value: 'all' },
-          { label: 'None', value: 'none' },
-          { label: 'Ad Hoc', value: 'adhoc' },
-          { label: 'Down Well', value: 'downwell' },
-          { label: 'AL Review', value: 'alreview' },
-          { label: 'Margin', value: 'margin' },
-          { label: 'Allocation', value: 'allocation' },
-          { label: 'Production Fault', value: 'productionfault' }
-        ]}
+        options={requestTypeOptions}
         selectedOptions={requestTypeSelected || ['all']}
         onChange={onRequestTypeChange || (() => {})}
-        isRequestTypeFilter={true}
+        isRequestTypeFilter
       />
       <AnalyticTypeFilter
-        onChange={onAnalyticTypeChange || (() => {})}
         selection={analyticSelection}
+        onChange={onAnalyticTypeChange || (() => {})}
       />
       <Filter
         label="Source"
-        options={[
-          { label: 'All', value: 'all' },
-          { label: 'WorkQueue', value: 'workqueue' },
-          { label: 'DataBricks', value: 'databricks' },
-          { label: 'Cygnet', value: 'cygnet' },
-          { label: 'PI-AF Analytics', value: 'piafanalytics' }
-        ]}
+        options={sourceOptions}
         selectedOptions={sourceSelected || ['all']}
         onChange={onSourceChange || (() => {})}
       />
       <Filter
         label="Role"
-        options={[
-          { label: 'All', value: 'all' },
-          { label: 'Production Engineer', value: 'productionengineer' },
-          { label: 'Production Foreman', value: 'productionforeman' },
-          { label: 'Production Assistant Foreman', value: 'productionassistantforeman' },
-          { label: 'DSC Production Analyst', value: 'dscproductionanalyst' }
-        ]}
+        options={roleOptions}
         selectedOptions={roleSelected || ['all']}
         onChange={onRoleChange || (() => {})}
       />
       <AssignedToFilter
-        onChange={onAssignedToChange || (() => {})}
         selection={assignedToSelected}
+        onChange={onAssignedToChange || (() => {})}
       />
       <button
         className={`text-sm ${isAnyFilterActive ? 'text-sky-600 hover:text-sky-700' : 'text-gray-400'}`}

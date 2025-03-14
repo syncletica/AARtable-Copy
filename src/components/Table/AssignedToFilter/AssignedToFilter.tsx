@@ -97,11 +97,15 @@ const AssignedToFilter: React.FC<AssignedToFilterProps> = ({ onChange, selection
         onClick={() => setIsOpen(!isOpen)}
         className={`
           flex items-center justify-between
-          border rounded-md
-          py-1 px-3 text-sm
-          focus:outline-none focus:ring-2 focus:ring-gray-400
-          ${isFilterActive ? 'bg-sky-50 text-sky-700' : 'bg-white text-gray-600'}
-          ${isOpen ? 'border-gray-400' : 'border-gray-300'}
+          rounded-md py-1 px-3 text-sm
+          focus:outline-none focus:ring-2 focus:ring-sky-400
+          whitespace-nowrap
+          transition-colors duration-150
+          ${isFilterActive 
+            ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:border-sky-500' 
+            : 'bg-white text-gray-600 border border-gray-300 hover:border-gray-500'
+          }
+          ${isOpen ? 'border-sky-600' : ''}
         `}
       >
         <span>
