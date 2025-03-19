@@ -1,6 +1,6 @@
 export const additionalRequests = [
   {
-    location: 'VEGA 29 FED 1H_2H BATTERY',
+    location: 'LAMBDA 29 FED 1H_2H BATTERY',
     type: 'Ad Hoc',
     description: 'Custom analysis request for well performance optimization.',
     source: 'WorkQueue',
@@ -10,7 +10,7 @@ export const additionalRequests = [
     endDate: '03/22/24',
   },
   {
-    location: 'CROSS MOUNTAIN 40-28-1H PAD',
+    location: 'SIGMA 40-28-1H WELL',
     type: 'Down Well',
     description: 'Investigation of downwell conditions and maintenance requirements.',
     source: 'WorkQueue',
@@ -20,7 +20,7 @@ export const additionalRequests = [
     endDate: '',
   },
   {
-    location: 'QUINN 37-36 EAST PAD',
+    location: 'PHI 37-36 EAST WELL',
     type: 'Ad Hoc',
     description: 'Pressure anomaly investigation and optimization strategy.',
     source: 'WorkQueue',
@@ -30,7 +30,7 @@ export const additionalRequests = [
     endDate: '03/21/24',
   },
   {
-    location: 'PECOS STATE 46-3H 4H TB PAD',
+    location: 'IOTA 46-3H 4H TB FACILITY',
     type: 'Down Well',
     description: 'Emergency maintenance inspection for pump failure.',
     source: 'WorkQueue',
@@ -40,7 +40,7 @@ export const additionalRequests = [
     endDate: '',
   },
   {
-    location: 'RDX 21-31 PAD',
+    location: 'RHO 21-31 WELL',
     type: 'AL Review',
     description: 'Review of artificial lift system performance and optimization opportunities.',
     source: 'WorkQueue',
@@ -50,7 +50,7 @@ export const additionalRequests = [
     endDate: '03/21/24',
   },
   {
-    location: 'EAST PECOS FEDERAL COM 22-1H PAD',
+    location: 'EAST IOTA FEDERAL COM 22-1H WELL',
     type: 'AL Review',
     description: 'Comprehensive ESP performance evaluation and optimization.',
     source: 'WorkQueue',
@@ -60,7 +60,7 @@ export const additionalRequests = [
     endDate: '03/20/24',
   },
   {
-    location: 'NORTH THISTLE 2 CTB 1',
+    location: 'NORTH PSI 2 CTB 1',
     type: 'Margin',
     description: 'Analysis of well margin and profitability metrics.',
     source: 'WorkQueue',
@@ -70,7 +70,7 @@ export const additionalRequests = [
     endDate: '03/20/24',
   },
   {
-    location: 'FIJI 17 CTB 1',
+    location: 'CHI 17 CTB 1',
     type: 'Margin',
     description: 'Economic analysis of artificial lift conversion project.',
     source: 'WorkQueue',
@@ -80,7 +80,7 @@ export const additionalRequests = [
     endDate: '03/20/24',
   },
   {
-    location: 'BOYD 21 PRODUCTION PAD',
+    location: 'UPSILON 21 PRODUCTION FACILITY',
     type: 'Allocation',
     description: 'Review and adjustment of production allocation methods.',
     source: 'WorkQueue',
@@ -90,7 +90,7 @@ export const additionalRequests = [
     endDate: '',
   },
   {
-    location: 'MULE 11 CTB 2',
+    location: 'XI 11 CTB 2',
     type: 'Allocation',
     description: 'Production allocation verification for commingled wells.',
     source: 'WorkQueue',
@@ -100,7 +100,7 @@ export const additionalRequests = [
     endDate: '',
   },
   {
-    location: 'MULE 23 CTB 2',
+    location: 'XI 23 CTB 2',
     type: 'Production Fault',
     description: 'Investigation of production system fault and remediation planning.',
     source: 'WorkQueue',
@@ -110,7 +110,7 @@ export const additionalRequests = [
     endDate: '03/18/24',
   },
   {
-    location: 'RDX 22-32 PAD',
+    location: 'RHO 22-32 WELL',
     type: 'Production Fault',
     description: 'Emergency response to sudden production decline.',
     source: 'WorkQueue',
@@ -120,7 +120,7 @@ export const additionalRequests = [
     endDate: '03/18/24',
   },
   {
-    location: 'VEGA 31 FED 2H_3H BATTERY',
+    location: 'LAMBDA 31 FED 2H_3H BATTERY',
     type: 'Ad Hoc',
     description: 'Production optimization analysis for multi-well pad.',
     source: 'WorkQueue',
@@ -130,7 +130,7 @@ export const additionalRequests = [
     endDate: '03/22/24',
   },
   {
-    location: 'THISTLE 4 CTB 2',
+    location: 'PSI 4 CTB 2',
     type: 'Down Well',
     description: 'Downhole equipment performance review.',
     source: 'WorkQueue',
@@ -140,7 +140,7 @@ export const additionalRequests = [
     endDate: '',
   },
   {
-    location: 'CROSS MOUNTAIN 42-28-2H PAD',
+    location: 'SIGMA 42-28-2H WELL',
     type: 'AL Review',
     description: 'Artificial lift system maintenance schedule review.',
     source: 'WorkQueue',
