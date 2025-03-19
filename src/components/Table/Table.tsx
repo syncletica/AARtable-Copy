@@ -70,13 +70,13 @@ const Table: React.FC = () => {
           <thead className="sticky top-0 bg-white z-40">
             <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
               <th className="py-4 pl-4 w-10 bg-white"></th>
-              <th className="py-4 w-[260px] bg-white">Location</th>
-              <th className="py-4 w-[260px] bg-white">Type</th>
+              <th className="py-4 w-[240px] bg-white">Location</th>
+              <th className="py-4 w-[240px] bg-white">Type</th>
               <th className="py-4 bg-white">Description</th>
               <th className="py-4 w-[130px] bg-white">Source</th>
-              <th className="py-4 w-[220px] bg-white">Assigned to & Role</th>
-              <th className="py-4 w-[110px] bg-white">Arrival date</th>
-              <th className="py-4 w-[110px] bg-white">End date</th>
+              <th className="py-4 w-[200px] bg-white">Assigned to & Role</th>
+              <th className="py-4 w-[100px] bg-white">Arrival date</th>
+              <th className="py-4 w-[100px] bg-white">End date</th>
             </tr>
           </thead>
           <tbody>
