@@ -20,14 +20,22 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
+      - name: Show current directory
+        run: pwd && ls -la
       - name: Build
         run: npm run build
-      - name: List build output
-        run: ls -la dist
+      - name: Show build output
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Dist directory contents:"
+          ls -la dist || echo "dist directory not found"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: dist
 
   deploy:
     needs: build
