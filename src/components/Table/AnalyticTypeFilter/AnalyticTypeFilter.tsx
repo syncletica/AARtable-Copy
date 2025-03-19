@@ -347,27 +347,39 @@ export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {getSelectedChips().length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {getSelectedChips().map(chip => (
-                  <span
-                    key={chip.value}
-                    className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm"
-                  >
-                    {chip.label} {chip.count ? `(${chip.count})` : ''}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleChipRemove(chip);
-                      }}
-                      className="ml-2 text-gray-500 hover:text-gray-700"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
+            <div className="mt-2 border border-gray-200 rounded-md">
+              <div className="h-[80px] overflow-y-auto p-2">
+                <div className="flex flex-wrap gap-2">
+                  {isAllSelected ? (
+                    <span className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-500">
+                      All items selected
+                    </span>
+                  ) : selection.types.length === 0 && selection.subtypes.length === 0 ? (
+                    <span className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-500">
+                      No items selected
+                    </span>
+                  ) : (
+                    getSelectedChips().map(chip => (
+                      <span
+                        key={chip.value}
+                        className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs"
+                      >
+                        <span className="text-xs">{chip.label} {chip.count ? `(${chip.count})` : ''}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleChipRemove(chip);
+                          }}
+                          className="ml-2 text-gray-500 hover:text-gray-700"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
           <div 
