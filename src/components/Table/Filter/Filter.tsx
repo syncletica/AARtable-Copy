@@ -61,9 +61,9 @@ export const Filter: React.FC<FilterProps> = ({
             : [...selectedOptions, value];
         }
         
-        // If no options are selected, switch to 'none'
+        // If no options are selected, switch to 'all' instead of 'none'
         if (newSelected.length === 0) {
-          onChange(['none']);
+          onChange(['all']);
         } else {
           // Check if all non-all/non-none options are selected
           const allIndividualOptions = options

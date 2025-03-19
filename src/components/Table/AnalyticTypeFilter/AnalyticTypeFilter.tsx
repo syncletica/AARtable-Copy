@@ -110,9 +110,9 @@ export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange
         }
       }
 
-      // If nothing is selected, switch to None
+      // If nothing is selected, switch to All instead of None
       if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-        newSelection = { types: [], subtypes: [] };
+        return handleSelectAll();
       }
     }
     
@@ -180,9 +180,9 @@ export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange
         }
       }
 
-      // If nothing is selected, switch to None
+      // If nothing is selected, switch to All instead of None
       if (newSelection.types.length === 0 && newSelection.subtypes.length === 0) {
-        newSelection = { types: [], subtypes: [] };
+        return handleSelectAll();
       }
     }
     
