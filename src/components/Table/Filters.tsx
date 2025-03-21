@@ -63,7 +63,7 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2">
       <Filter
         label="Request type"
         options={requestTypeOptions}

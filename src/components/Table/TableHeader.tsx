@@ -36,7 +36,7 @@ const Filter: React.FC<FilterProps> = ({ label, options, value, onChange }) => (
 const TableHeader: React.FC = () => {
   return (
     <div className="flex flex-col gap-4 mb-6">
-      <h1 className="text-xl font-semibold text-gray-800">Available Analytics and Requests</h1>
+      <h1 className="text-xl font-medium text-gray-800">Available Analytics and Requests</h1>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Filter

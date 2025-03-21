@@ -335,7 +335,7 @@ export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ width: '400px', right: '0' }}>
+        <div className="absolute z-10 mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ width: '410px', right: '0' }}>
           <div className="p-2 ">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -348,8 +348,8 @@ export const AnalyticTypeFilter: React.FC<AnalyticTypeFilterProps> = ({ onChange
               />
             </div>
             <div className="mt-2 border border-gray-200 rounded-md">
-              <div className="h-[80px] overflow-y-auto p-2">
-                <div className="flex flex-wrap gap-2">
+              <div className="h-[90px] overflow-y-auto p-2">
+                <div className="flex flex-wrap gap-1">
                   {isAllSelected ? (
                     <span className="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-500">
                       All items selected
