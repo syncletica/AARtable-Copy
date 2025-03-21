@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import TableRow from './TableRow';
 import Filters from './Filters';
+import BlankState from './BlankState';
 import { generateAllData } from './mockData/generateMockData';
 import { Selection } from './AnalyticTypeFilter/types';
 import { analyticTypes } from './AnalyticTypeFilter/data';
@@ -23,7 +24,7 @@ const Table: React.FC = () => {
   const [assignedToSelected, setAssignedToSelected] = useState<string[]>(['all']);
 
   const filteredData = useMemo(() => {
-    return filterTableData(
+    const filtered = filterTableData(
       allData as TableRowData[],
       requestTypeSelected,
       analyticSelection,
@@ -31,7 +32,20 @@ const Table: React.FC = () => {
       roleSelected,
       assignedToSelected
     );
+    console.log('Filtered Data Length:', filtered.length);
+    console.log('Filter States:', {
+      requestTypeSelected,
+      analyticSelection,
+      sourceSelected,
+      roleSelected,
+      assignedToSelected
+    });
+    return filtered;
   }, [requestTypeSelected, analyticSelection, sourceSelected, roleSelected, assignedToSelected]);
+
+  useEffect(() => {
+    console.log('Initial Data Length:', allData.length);
+  }, []);
 
   const handleClearFilters = () => {
     const allTypes = analyticTypes.map(t => t.value);
@@ -47,7 +61,7 @@ const Table: React.FC = () => {
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-white rounded-lg shadow overflow-hidden">
       <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-50 rounded-t-lg">
         <div className="flex flex-wrap items-start gap-4">
-          <h1 className="text-md font-semibold text-gray-800 shrink-0">Available Analytics and Requests</h1>
+          <h1 className="text-md font-medium text-gray-800 shrink-0">Available Analytics and Requests</h1>
           <div className="ml-auto">
             <Filters 
               onClearFilters={handleClearFilters}
@@ -65,26 +79,30 @@ const Table: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 overflow-auto">
-        <table className="w-full table-fixed">
-          <thead className="sticky top-0 bg-white z-40">
-            <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-              <th className="py-4 pl-4 w-10 bg-white"></th>
-              <th className="py-4 w-[250px] bg-white">Location</th>
-              <th className="py-4 w-[250px] bg-white">Type</th>
-              <th className="py-4 bg-white">Description</th>
-              <th className="py-4 w-[130px] bg-white">Source</th>
-              <th className="py-4 w-[210px] bg-white">Assigned to & Role</th>
-              <th className="py-4 w-[100px] bg-white">Arrival date</th>
-              <th className="py-4 w-[100px] bg-white">End date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((row, index) => (
-              <TableRow key={index} {...row} />
-            ))}
-          </tbody>
-        </table>
+      <div className="flex-1 overflow-auto relative">
+        {filteredData.length > 0 ? (
+          <table className="w-full table-fixed">
+            <thead className="sticky top-0 bg-white z-40">
+              <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
+                <th className="py-4 pl-4 w-10 bg-white"></th>
+                <th className="py-4 w-[250px] bg-white">Location</th>
+                <th className="py-4 w-[250px] bg-white">Type</th>
+                <th className="py-4 bg-white">Description</th>
+                <th className="py-4 w-[130px] bg-white">Source</th>
+                <th className="py-4 w-[210px] bg-white">Assigned to & Role</th>
+                <th className="py-4 w-[100px] bg-white">Arrival date</th>
+                <th className="py-4 w-[100px] bg-white">End date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((row, index) => (
+                <TableRow key={index} {...row} />
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <BlankState />
+        )}
       </div>
     </div>
   );
