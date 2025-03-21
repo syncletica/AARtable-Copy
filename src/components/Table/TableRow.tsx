@@ -33,11 +33,11 @@ const TableRow: React.FC<TableRowProps> = ({
 
   return (
     <tr className="border-t border-gray-200 hover:bg-gray-50">
-      <td className="py-4 pl-4">
+      <td className="py-2 pl-4">
         <input type="checkbox" className="rounded border-gray-300" />
       </td>
-      <td className="py-4 text-sm truncate pr-4">{location}</td>
-      <td className="py-4 pr-4">
+      <td className="py-2 text-sm truncate pr-4">{location}</td>
+      <td className="py-2 pr-4">
         <div>
           {subType ? (
             <>
@@ -54,18 +54,18 @@ const TableRow: React.FC<TableRowProps> = ({
           )}
         </div>
       </td>
-      <td className="py-4 pr-4">
+      <td className="py-2 pr-4">
         <p className="text-gray-800 truncate text-sm">{description}</p>
       </td>
-      <td className="py-4 text-sm truncate pr-4">{source}</td>
-      <td className="py-4 pr-4">
+      <td className="py-2 text-sm truncate pr-4">{source}</td>
+      <td className="py-2 pr-4">
         <div>
           <div className="text-sm truncate">{assignedTo || 'Unassigned'}</div>
           <div className="text-xs text-gray-500 truncate">{role}</div>
         </div>
       </td>
-      <td className="py-4 text-sm truncate pr-4">{arrivalDate}</td>
-      <td className="py-4 text-sm truncate pr-4">{isOperationalRequest(type) ? '' : endDate}</td>
+      <td className="py-2 text-sm truncate pr-4">{arrivalDate}</td>
+      <td className="py-2 text-sm truncate pr-4">{isOperationalRequest(type) ? '' : endDate}</td>
     </tr>
   );
 };
